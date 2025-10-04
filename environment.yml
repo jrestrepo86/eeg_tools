@@ -1,0 +1,12 @@
+name: eeg-tools-env
+channels:
+  - conda-forge
+  - defaults
+  - anaconda
+dependencies:
+  - python=3.12.7
+  - pip
+  - pytorch::pytorch
+  - pip:
+      - ray[default]
+      - -e . # Install the current directory in editable mode

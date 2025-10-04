@@ -1,2 +1,3 @@
-# eeg_tool
-Heramientas para procesar EEG
+# eeg_tools
+
+Herramientas para procesar EEG

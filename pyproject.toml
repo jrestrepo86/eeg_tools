@@ -1,0 +1,53 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+
+requires = [ "setuptools>=68", "wheel" ]
+
+[project]
+name = "eeg-tools"
+version = "0.0.1"
+description = "EEG tools"
+readme = "README.md"
+keywords = [ "EEG", "Neural-Networks", "Permutation Entropy" ]
+license = { text = "MIT" }
+authors = [
+  { name = "Juan Felipe Restrepo", email = "juan.restrepo@uner.edu.ar" },
+  { name = "Juan Manuel Diaz", email = "juan.manuel.diaz@unc.edu.ar" },
+]
+requires-python = ">=3.11"
+classifiers = [
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+
+# Everything your package needs at runtime — pip-only
+dependencies = [
+  "numpy",
+  "pandas",
+  "pillow",
+  "plotly",
+  "psutil",
+  "ray[default]",
+  "scikit-learn",
+  "scipy",
+  "tqdm",
+]
+
+# Local dev/test extras (used by environment.yml)
+optional-dependencies.dev = [ "black", "pytest", "pytest-cov", "ruff" ]
+urls.Repository = 'https://github.com/jrestrepo86/eeg_tool.git'
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = [ "src" ]
+exclude = [ "tests", "docs" ]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q"
+testpaths = [ "tests" ]
