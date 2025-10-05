@@ -27,5 +27,5 @@ class DataHandler:
             )
         if handler is not None:
             self.data = handler.load_data()
-            self.channels = handler.channels
-            self.meta = handler.meta
+            self.channels = handler.get_channels()
+            self.meta = handler.get_meta()

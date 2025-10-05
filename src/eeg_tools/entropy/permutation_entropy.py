@@ -2,14 +2,14 @@ import math
 
 import numpy as np
 
-from ..utils.embedding import embedding, to_col_vector
+from ..utils.utils import embedding, split_by_windows
 
 
 def permutation_entropy(
     x: np.ndarray, emb_dim: int = 3, emb_lag: int = 1, normalize: bool = False
 ) -> float:
     # Embedding
-    X = embedding(to_col_vector(x), emb_dim, emb_lag)
+    X = embedding(x, emb_dim, emb_lag)
     n, order = X.shape
 
     # Precompute factorial weights
@@ -42,3 +42,17 @@ def permutation_entropy(
         H /= np.log(M)
 
     return H
+
+
+def windowed_permutation_entropy(
+    x: np.ndarray,
+    window_size: int,
+    window_step: int,
+    emb_dim: int = 3,
+    emb_lag: int = 1,
+    normalize: bool = False,
+):
+    windows = split_by_windows(x, window_size, window_step)
+    return np.array(
+        [permutation_entropy(w, emb_dim, emb_lag, normalize) for w in windows]
+    )

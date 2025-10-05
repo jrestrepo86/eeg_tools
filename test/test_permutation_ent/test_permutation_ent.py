@@ -7,8 +7,6 @@ Assumes:
     from eeg_tools.entropy.permutation_entropy import permutation_entropy
 """
 
-import math
-
 import numpy as np
 
 from eeg_tools.entropy.permutation_entropy import permutation_entropy

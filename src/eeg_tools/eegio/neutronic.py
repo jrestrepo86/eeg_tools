@@ -1,69 +1,62 @@
-"""
-Load EEG data from a text file into a pandas DataFrame.
-
-Parameters:
-file_path (str): Path to the input text file containing EEG data.
-
-Returns:
-pandas.DataFrame: DataFrame with columns as EEG channel labels and rows as data samples.
-"""
-
 from pathlib import Path
+from typing import Dict
 
 import pandas as pd
 
-META = {"fz": None}
+CHANNELS_MAP = {
+    "F1": 3,
+    "F3": 4,
+    "C3": 5,
+    "P3": 6,
+    "O1": 7,
+    "F7": 8,
+    "T3": 9,
+    "T5": 10,
+    "Fz": 11,
+    "Cz": 12,
+    "Pz": 13,
+    "Oz": 14,
+    "T6": 15,
+    "T4": 16,
+    "F8": 17,
+    "O2": 18,
+    "P4": 19,
+    "C4": 20,
+    "F4": 21,
+    "F2": 22,
+}
 
 
 class Neutronic:
     def __init__(self, source_file: Path):
-        # Define the EEG channel labels in the specified order
-        self._check_source_file(source_file)
-        self.channels = [
-            "F1",
-            "F3",
-            "C3",
-            "P3",
-            "O1",
-            "F7",
-            "T3",
-            "T5",
-            "Fz",
-            "Cz",
-            "Pz",
-            "Oz",
-            "T6",
-            "T4",
-            "F8",
-            "O2",
-            "P4",
-            "C4",
-            "F4",
-            "F2",
-        ]
-        self.meta = META
+        self.source_file = Path(source_file)
+        if self.source_file.suffix != ".txt":
+            raise ValueError("Neutronic file must be a .txt file")
 
-    def _check_source_file(self, source_file: Path):
-        if source_file.suffix == "txt":
-            self.source_file = source_file
-        else:
-            raise ValueError("Neutronic file is not a .txt file")
+    def get_meta(self):
+        meta: Dict[str, object] = {}
+        meta["sampling_rate"] = 65
+        return meta
+
+    def get_channels(self):
+        return list(CHANNELS_MAP.keys())
 
     def load_data(self) -> pd.DataFrame:
-        data = []
-        with open(self.source_file, "r", encoding="utf-8") as file:
-            for line in file:
-                parts = line.strip().split()
-                # Ensure the line has enough elements to extract EEG channels
-                if len(parts) >= 23:
-                    eeg_values = parts[3:23]  # Extract the 20 EEG channel values
-                    try:
-                        # Convert to integers and add to data list
-                        data_row = [int(val) for val in eeg_values]
-                        data.append(data_row)
-                    except ValueError:
-                        # Skip lines with non-integer values in the EEG data
-                        continue
+        raw_data = pd.read_csv(
+            self.source_file,
+            sep=r"\s+",
+            skiprows=2,
+            encoding="utf-8",
+        )
+        data = pd.DataFrame()
+        for channel_name, position in CHANNELS_MAP.items():
+            data[channel_name] = raw_data.iloc[:, position]
 
-        # Create DataFrame with the extracted data and channel labels
-        return pd.DataFrame(data, columns=self.channels)
+        return data.reset_index(drop=True)
+
+
+if __name__ == "__main__":
+    file = Path(__file__).parent.parent.parent.parent / "data" / "neutronic_data.txt"
+    handler = Neutronic(file)
+    data = handler.load_data()
+    pass
