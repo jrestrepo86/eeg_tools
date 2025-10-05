@@ -7,7 +7,7 @@ HARDWARE_OPTIONS = ["neutronic", "openbci"]
 
 
 class DataHandler:
-    def __init__(self, source_file: str, hardware: str):
+    def __init__(self, source_file: Path | str, hardware: str):
         self.hardware_source = hardware.lower()
         self.source_file = Path(source_file)
         # chack source file
@@ -29,3 +29,14 @@ class DataHandler:
             self.data = handler.load_data()
             self.channels = handler.get_channels()
             self.meta = handler.get_meta()
+
+    def get_data_by_channel(self, channel: str):
+        if channel not in self.channels:
+            raise ValueError(f"No channel {channel} found. Channels {self.channels}")
+        return self.data[channel]
+
+    def get_meta_data(self):
+        return self.meta
+
+    def get_sampling_rate(self):
+        return self.meta["sampling_rate"]
