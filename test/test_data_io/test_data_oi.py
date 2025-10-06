@@ -1,12 +1,10 @@
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
 import plotly.graph_objects as go
 
 from eeg_tools.eegio.data_handler import DataHandler
 
-HARDWARE = "neutronic"
 OPENBCI_FILE = (
     Path(__file__).parent.parent.parent / "data" / "OpenBCI-RAW-2020-01-20_19-25-40.txt"
 )

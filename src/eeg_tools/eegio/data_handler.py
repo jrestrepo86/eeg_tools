@@ -40,3 +40,6 @@ class DataHandler:
 
     def get_sampling_rate(self):
         return self.meta["sampling_rate"]
+
+    def get_series_lenght(self):
+        return self.data.shape[0]

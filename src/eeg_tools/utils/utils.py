@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from numpy.lib.stride_tricks import as_strided
 
 
@@ -12,6 +13,9 @@ def to_col_vector(x: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Column vector.
     """
+    if isinstance(x, pd.Series):
+        x = x.to_numpy()
+
     x = x.reshape(x.shape[0], -1)
     if x.shape[0] < x.shape[1]:
         x = x.T
@@ -115,8 +119,6 @@ def split_by_windows(x: np.ndarray, window_size: int, window_step: int) -> np.nd
     n_windows = starts.size
 
     # use stride_tricks for efficiency
-    from numpy.lib.stride_tricks import as_strided
-
     stride = x.strides[0]
     windows = as_strided(
         x,
