@@ -30,24 +30,20 @@ class DataHandler:
             )
         if handler is not None:
             self.data = handler.load_data()
-            self.channels = handler.get_channels()
-            self.meta = handler.get_meta()
+            self.channels = handler.set_channels()
+            self.meta = handler.set_meta()
+            self.sampling_rate = handler.set_sampling_rate()
 
     def get_data_by_channel(self, channel: str):
         if channel not in self.channels:
             raise ValueError(f"No channel {channel} found. Channels {self.channels}")
-        return self.data[channel]
+        return self.data[channel].to_numpy()
 
-    def get_sampling_rate(self):
-        return self.meta["sampling_rate"]
+    def get_sampling_rate(self, channel=None) -> float:
+        if channel is None:
+            return self.sampling_rate[self.channels[0]].values[0]
+        else:
+            return self.sampling_rate[channel].values[0]
 
     def get_series_lenght(self):
         return self.data.shape[0]
-
-
-if __name__ == "__main__":
-    file = Path(__file__).parent.parent.parent.parent / "data" / "eeg_data.edf"
-    handler = DataHandler(file, "edf")
-    data = handler.data
-    meta = handler.meta
-    pass

@@ -11,20 +11,22 @@ OPENBCI_FILE = (
 
 NEUTRONIC_FILE = Path(__file__).parent.parent.parent / "data" / "neutronic_data.txt"
 
+EDF_FILE = file = Path(__file__).parent.parent.parent / "data" / "eeg_data.edf"
+
 
 def generate_plot(handler, title: str | None = None) -> go.Figure:
-    df = handler.data
     channels = handler.channels
-    fs = handler.get_sampling_rate()  # Hz
-    if fs is None or fs <= 0:
-        raise ValueError(f"Invalid sampling rate from meta: {fs}")
-    t = np.arange(len(df), dtype=float) / float(fs)  # time in seconds, starts at 0
     fig = go.Figure()
     for ch in channels:
+        fs = handler.get_sampling_rate(ch)  # Hz
+        data = handler.get_data_by_channel(ch)
+        if data.size > 10000:
+            data = data[:10000]
+        t = np.arange(data.size, dtype=float) / fs  # time in seconds, starts at 0
         fig.add_trace(
             go.Scatter(
                 x=t,
-                y=df[ch].to_numpy(),
+                y=data,
                 mode="lines",
                 name=ch,
             )
@@ -53,6 +55,13 @@ def openbci():
     fig.show()
 
 
+def edf():
+    edf_handler = DataHandler(EDF_FILE, hardware="edf")
+    fig = generate_plot(edf_handler, title="EDF Channels vs Time")
+    fig.show()
+
+
 if __name__ == "__main__":
-    neutronic()
-    openbci()
+    # neutronic()
+    # openbci()
+    edf()

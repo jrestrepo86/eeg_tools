@@ -30,7 +30,7 @@ class OpenBci:
         if self.source_file.suffix != ".txt":
             raise ValueError("OpenBCI file must be a .txt file")
 
-    def get_meta(self):
+    def set_meta(self):
         meta: Dict[str, object] = {}
         with open(self.source_file, "r", encoding="utf-8") as file:
             header = [next(file) for _ in range(5)]
@@ -40,8 +40,15 @@ class OpenBci:
         meta["header"] = "\n".join(header)
         return meta
 
-    def get_channels(self):
+    def set_channels(self):
         return list(CHANNELS_MAP.keys())
+
+    def set_sampling_rate(self) -> pd.DataFrame:
+        with open(self.source_file, "r", encoding="utf-8") as file:
+            header = [next(file) for _ in range(5)]
+        fs = float(re.search(r"=\s*([0-9.]+)", header[2]).group(1))
+        rates = {ch: float(fs) for i, ch in enumerate(CHANNELS_MAP.keys())}
+        return pd.DataFrame([rates])
 
     def load_data(self) -> pd.DataFrame:
         raw_data = pd.read_csv(

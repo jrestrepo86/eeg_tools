@@ -33,13 +33,17 @@ class Neutronic:
         if self.source_file.suffix != ".txt":
             raise ValueError("Neutronic file must be a .txt file")
 
-    def get_meta(self):
+    def set_meta(self):
         meta: Dict[str, object] = {}
         meta["sampling_rate"] = 65
         return meta
 
-    def get_channels(self):
+    def set_channels(self):
         return list(CHANNELS_MAP.keys())
+
+    def set_sampling_rate(self) -> pd.DataFrame:
+        rates = {ch: float(65) for i, ch in enumerate(CHANNELS_MAP.keys())}
+        return pd.DataFrame([rates])
 
     def load_data(self) -> pd.DataFrame:
         raw_data = pd.read_csv(

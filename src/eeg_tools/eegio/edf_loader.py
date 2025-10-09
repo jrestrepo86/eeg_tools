@@ -10,7 +10,7 @@ class EDF:
     def __init__(self, source_file: Path):
         self.source_file = Path(source_file)
 
-    def get_meta(self):
+    def set_meta(self):
         meta: Dict[str, object] = {}
         with pyedflib.EdfReader(str(self.source_file)) as f:
             n = f.signals_in_file
@@ -23,10 +23,18 @@ class EDF:
             meta["units"] = [f.getPhysicalDimension(i) for i in range(n)]
         return meta
 
-    def get_channels(self) -> list:
+    def set_channels(self) -> list:
         with pyedflib.EdfReader(str(self.source_file)) as f:
             ch_names = f.getSignalLabels()  # list of channel labels
         return ch_names
+
+    def set_sampling_rate(self) -> pd.DataFrame:
+        with pyedflib.EdfReader(str(self.source_file)) as f:
+            ch_names = f.getSignalLabels()  # list of channel labels
+            rates = {
+                ch: float(f.getSampleFrequency(i)) for i, ch in enumerate(ch_names)
+            }
+        return pd.DataFrame([rates])
 
     def load_data(self) -> pd.DataFrame:
         data = pd.DataFrame()
