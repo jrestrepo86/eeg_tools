@@ -1,9 +1,10 @@
 from pathlib import Path
 
+from .edf_loader import EDF
 from .neutronic import Neutronic
 from .open_bci import OpenBci
 
-HARDWARE_OPTIONS = ["neutronic", "openbci"]
+HARDWARE_OPTIONS = ["neutronic", "openbci", "edf"]
 
 
 class DataHandler:
@@ -20,6 +21,8 @@ class DataHandler:
             handler = Neutronic(self.source_file)
         elif self.hardware_source == "openbci":
             handler = OpenBci(self.source_file)
+        elif self.hardware_source == "edf":
+            handler = EDF(self.source_file)
         else:
             handler = None
             raise ValueError(
@@ -35,11 +38,16 @@ class DataHandler:
             raise ValueError(f"No channel {channel} found. Channels {self.channels}")
         return self.data[channel]
 
-    def get_meta_data(self):
-        return self.meta
-
     def get_sampling_rate(self):
         return self.meta["sampling_rate"]
 
     def get_series_lenght(self):
         return self.data.shape[0]
+
+
+if __name__ == "__main__":
+    file = Path(__file__).parent.parent.parent.parent / "data" / "eeg_data.edf"
+    handler = DataHandler(file, "edf")
+    data = handler.data
+    meta = handler.meta
+    pass
