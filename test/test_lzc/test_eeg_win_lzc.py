@@ -5,7 +5,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from eeg_tools.eegio.data_handler import DataHandler
-from eeg_tools.entropy.permutation_entropy import windowed_permutation_entropy
+from eeg_tools.lz_complexity.lzc import windowed_lzc
 
 OPENBCI_FILE = (
     Path(__file__).parent.parent.parent / "data" / "OpenBCI-RAW-2020-01-20_19-25-40.txt"
@@ -28,7 +28,7 @@ def generate_plot(pent, window_centers, title: str | None = None) -> go.Figure:
         )
 
     fig.update_layout(
-        title=title or "Permutation Entropy vs Windows",
+        title=title or "LZ Complexity vs Windows",
         xaxis_title="Windows",
         yaxis_title="Permutation Entropy",
         legend_title="Channels",
@@ -41,32 +41,33 @@ def generate_plot(pent, window_centers, title: str | None = None) -> go.Figure:
 def neutronic_pentropy():
     window_size = 64
     window_step = 32
-    emb_dim = 3
-    emb_lag = 1
+    lz_algorithm = "lz76_scheme1"
+    alphabet_size = 4
+    lzc_norm = "scheme1"
 
     handler = DataHandler(NEUTRONIC_FILE, hardware="neutronic")
     data = handler.data
     fs = handler.get_sampling_rate()
     data_samples = handler.get_series_lenght()
 
-    pent_df = pd.DataFrame()
+    lzc_df = pd.DataFrame()
     for channel in handler.channels:
-        pent = windowed_permutation_entropy(
+        lzc = windowed_lzc(
             data[channel].to_numpy(),
             window_size=window_size,
             window_step=window_step,
-            emb_dim=emb_dim,
-            emb_lag=emb_lag,
-            normalize=True,
+            lz_algorithm=lz_algorithm,
+            alphabet_size=alphabet_size,
+            lzc_norm=lzc_norm,
         )
-        pent_df[channel] = pent
+        lzc_df[channel] = lzc
 
-    pent = pent_df.reset_index(drop=True)
+    lzc = lzc_df.reset_index(drop=True)
     n_windows = (data_samples - window_size) // window_step + 1
     centers = (np.arange(n_windows) * window_step) + (window_size - 1) / 2.0
 
-    title = f"Neutronic PEntropy | data samples= {data_samples}, sampling-rate={fs} , window_size={window_size}, window_step={window_step}, emb_dim={emb_dim}, emb_lag={emb_lag} "
-    fig = generate_plot(pent, centers, title=title)
+    title = f"Neutronic LZC | data samples= {data_samples}, sampling-rate={fs} , window_size={window_size}, window_step={window_step}, emb_dim={emb_dim}, emb_lag={emb_lag} "
+    fig = generate_plot(lzc, centers, title=title)
 
     fig.show()
 
@@ -74,32 +75,33 @@ def neutronic_pentropy():
 def openbci_pentropy():
     window_size = 128
     window_step = 64
-    emb_dim = 3
-    emb_lag = 1
+    lz_algorithm = "lz76_scheme1"
+    alphabet_size = 4
+    lzc_norm = "scheme1"
 
     handler = DataHandler(OPENBCI_FILE, hardware="openbci")
     data = handler.data
     fs = handler.get_sampling_rate()
     data_samples = handler.get_series_lenght()
 
-    pent_df = pd.DataFrame()
+    lzc_df = pd.DataFrame()
     for channel in handler.channels:
-        pent = windowed_permutation_entropy(
+        pent = windowed_lzc(
             data[channel].to_numpy(),
             window_size=window_size,
             window_step=window_step,
-            emb_dim=emb_dim,
-            emb_lag=emb_lag,
-            normalize=False,
+            lz_algorithm=lz_algorithm,
+            alphabet_size=alphabet_size,
+            lzc_norm=lzc_norm,
         )
-        pent_df[channel] = pent
+        lzc_df[channel] = pent
 
-    pent = pent_df.reset_index(drop=True)
+    pent = lzc_df.reset_index(drop=True)
 
     n_windows = (data_samples - window_size) // window_step + 1
     centers = (np.arange(n_windows) * window_step) + (window_size - 1) / 2.0
 
-    title = f"OpenBCI PEntropy | data samples= {data_samples}, sampling-rate={fs}, window_size={window_size}, window_step={window_step}, emb_dim={emb_dim}, emb_lag={emb_lag} "
+    title = f"OpenBCI LZC | data samples= {data_samples}, sampling-rate={fs}, window_size={window_size}, window_step={window_step}, emb_dim={emb_dim}, emb_lag={emb_lag} "
     fig = generate_plot(pent, centers, title=title)
 
     fig.show()
