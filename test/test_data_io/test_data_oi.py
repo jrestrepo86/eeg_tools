@@ -9,17 +9,18 @@ OPENBCI_FILE = (
     Path(__file__).parent.parent.parent / "data" / "OpenBCI-RAW-2020-01-20_19-25-40.txt"
 )
 
-NEUTRONIC_FILE = Path(__file__).parent.parent.parent / "data" / "neutronic_data.txt"
+# NEUTRONIC_FILE = Path(__file__).parent.parent.parent / "data" / "neutronic_data.txt"
+NEUTRONIC_FILE = Path(__file__).parent.parent.parent / "data" / "ID_18_EEG_02_new.txt"
 
 EDF_FILE = file = Path(__file__).parent.parent.parent / "data" / "eeg_data.edf"
 
 
-def generate_plot(handler, title: str | None = None) -> go.Figure:
+def generate_plot(handler, start_index=1, title: str | None = None) -> go.Figure:
     channels = handler.channels
     fig = go.Figure()
     for ch in channels:
         fs = handler.get_sampling_rate(ch)  # Hz
-        data = handler.get_data_by_channel(ch)
+        data = handler.get_data_by_channel(ch, start_index)
         if data.size > 10000:
             data = data[:10000]
         t = np.arange(data.size, dtype=float) / fs  # time in seconds, starts at 0
@@ -44,8 +45,12 @@ def generate_plot(handler, title: str | None = None) -> go.Figure:
 
 
 def neutronic():
-    neutronic_handler = DataHandler(NEUTRONIC_FILE, hardware="neutronic")
-    fig = generate_plot(neutronic_handler, title="Neutronic Channels vs Time")
+    neutronic_handler = DataHandler(
+        NEUTRONIC_FILE, hardware="neutronic", data_col_index=2
+    )
+    fig = generate_plot(
+        neutronic_handler, start_index=60 * 65, title="Neutronic Channels vs Time"
+    )
     fig.show()
 
 
@@ -62,6 +67,6 @@ def edf():
 
 
 if __name__ == "__main__":
-    # neutronic()
+    neutronic()
     # openbci()
-    edf()
+    # edf()

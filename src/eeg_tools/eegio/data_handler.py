@@ -8,7 +8,7 @@ HARDWARE_OPTIONS = ["neutronic", "openbci", "edf"]
 
 
 class DataHandler:
-    def __init__(self, source_file: Path | str, hardware: str):
+    def __init__(self, source_file: Path | str, hardware: str, data_col_index: int = 1):
         self.hardware_source = hardware.lower()
         self.source_file = Path(source_file)
         # chack source file
@@ -18,7 +18,7 @@ class DataHandler:
             raise ValueError(f"No source file {source_file} found")
 
         if self.hardware_source == "neutronic":
-            handler = Neutronic(self.source_file)
+            handler = Neutronic(self.source_file, data_col_index=data_col_index)
         elif self.hardware_source == "openbci":
             handler = OpenBci(self.source_file)
         elif self.hardware_source == "edf":
@@ -34,10 +34,10 @@ class DataHandler:
             self.meta = handler.set_meta()
             self.sampling_rate = handler.set_sampling_rate()
 
-    def get_data_by_channel(self, channel: str):
+    def get_data_by_channel(self, channel: str, start_index: int = 0):
         if channel not in self.channels:
             raise ValueError(f"No channel {channel} found. Channels {self.channels}")
-        return self.data[channel].to_numpy()
+        return self.data[channel].iloc[start_index:].to_numpy()
 
     def get_sampling_rate(self, channel=None) -> float:
         if channel is None:

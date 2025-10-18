@@ -10,7 +10,8 @@ from eeg_tools.entropy.permutation_entropy import windowed_permutation_entropy
 OPENBCI_FILE = (
     Path(__file__).parent.parent.parent / "data" / "OpenBCI-RAW-2020-01-20_19-25-40.txt"
 )
-NEUTRONIC_FILE = Path(__file__).parent.parent.parent / "data" / "neutronic_data.txt"
+# NEUTRONIC_FILE = Path(__file__).parent.parent.parent / "data" / "neutronic_data.txt"
+NEUTRONIC_FILE = Path(__file__).parent.parent.parent / "data" / "ID_18_EEG_02_new.txt"
 
 
 def generate_plot(pent, window_centers, title: str | None = None) -> go.Figure:
@@ -44,15 +45,15 @@ def neutronic_pentropy():
     emb_dim = 3
     emb_lag = 1
 
-    handler = DataHandler(NEUTRONIC_FILE, hardware="neutronic")
-    data = handler.data
+    handler = DataHandler(NEUTRONIC_FILE, hardware="neutronic", data_col_index=2)
     fs = handler.get_sampling_rate()
     data_samples = handler.get_series_lenght()
 
     pent_df = pd.DataFrame()
     for channel in handler.channels:
+        eeg = handler.get_data_by_channel(channel=channel, start_index=65 * 60)
         pent = windowed_permutation_entropy(
-            data[channel].to_numpy(),
+            eeg,
             window_size=window_size,
             window_step=window_step,
             emb_dim=emb_dim,
