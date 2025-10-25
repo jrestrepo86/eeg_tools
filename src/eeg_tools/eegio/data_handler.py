@@ -34,10 +34,22 @@ class DataHandler:
             self.meta = handler.set_meta()
             self.sampling_rate = handler.set_sampling_rate()
 
-    def get_data_by_channel(self, channel: str, start_index: int = 0):
+    def get_data_by_channel(
+        self, channel: str, start_idx: int | None = None, end_idx: int | None = None
+    ):
         if channel not in self.channels:
             raise ValueError(f"No channel {channel} found. Channels {self.channels}")
-        return self.data[channel].iloc[start_index:].to_numpy()
+
+        if start_idx is None:
+            start_idx = 0
+
+        if end_idx is None:
+            end_idx = self.data.shape[0]
+
+        if end_idx <= start_idx:
+            raise ValueError(f"{end_idx=} must be greater than {start_idx=}")
+
+        return self.data[channel].iloc[start_idx:end_idx].to_numpy()
 
     def get_sampling_rate(self, channel=None) -> float:
         if channel is None:
