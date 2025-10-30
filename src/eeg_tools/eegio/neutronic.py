@@ -66,6 +66,8 @@ class Neutronic:
             sep=r"\s+",
             skiprows=2,
             encoding=self.file_encoding,
+            names=[f"col{i}" for i in range(50)],
+            header=None,
         )
         data = pd.DataFrame()
         for channel_name, position in self.channel_map.items():
